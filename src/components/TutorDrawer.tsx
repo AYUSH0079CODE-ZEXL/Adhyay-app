@@ -13,6 +13,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { apiUrl } from '../lib/api';
 
 interface Message {
   id: string;
@@ -84,8 +85,9 @@ What would you like to master today?
         .join('\n\n')
         .slice(0, 4000);
 
-      const res = await fetch('/api/gemini/tutor-chat', {
+      const res = await fetch(apiUrl('/api/gemini/tutor-chat'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: textToSend,

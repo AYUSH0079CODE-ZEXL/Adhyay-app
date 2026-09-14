@@ -9,8 +9,8 @@ export const API_BASE_URL: string = (() => {
 
   // 1. Explicit environment override
   const envUrl = (import.meta as any).env?.VITE_API_URL;
-  if (envUrl) {
-    return envUrl.replace(/\/$/, '');
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim().replace(/\/$/, '');
   }
 
   // 2. If running on GitHub Pages, route API requests to the live backend
@@ -24,17 +24,46 @@ export const API_BASE_URL: string = (() => {
 
 export function apiUrl(endpoint: string): string {
   const clean = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  if (!API_BASE_URL) return clean;
   return `${API_BASE_URL}${clean}`;
 }
 
-// Automatically route relative /api/ requests to the backend when deployed on GitHub Pages
-if (typeof window !== 'undefined' && API_BASE_URL) {
-  const originalFetch = window.fetch;
-  window.fetch = function (input: RequestInfo | URL, init?: RequestInit) {
-    if (typeof input === 'string' && input.startsWith('/api/')) {
-      input = `${API_BASE_URL}${input}`;
-    }
-    return originalFetch.call(this, input, init);
-  };
+export function apiFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  let target = input;
+  if (typeof target === 'string' && target.startsWith('/api/')) {
+    target = apiUrl(target);
+  }
+  return fetch(target, init);
 }
 
+// Safely attempt to route relative /api/ requests if possible, with zero risk of throwing
+if (typeof window !== 'undefined' && API_BASE_URL) {
+  try {
+    const originalFetch = window.fetch ? window.fetch.bind(window) : null;
+    if (originalFetch) {
+      const patchedFetch = function (input: RequestInfo | URL, init?: RequestInit) {
+        let finalInput = input;
+        if (typeof input === 'string' && input.startsWith('/api/')) {
+          finalInput = apiUrl(input);
+        }
+        return originalFetch(finalInput, init);
+      };
+
+      try {
+        window.fetch = patchedFetch as typeof window.fetch;
+      } catch {
+        try {
+          Object.defineProperty(window, 'fetch', {
+            value: patchedFetch,
+            writable: true,
+            configurable: true,
+          });
+        } catch {
+          // Property is non-configurable / has only getter in this environment
+        }
+      }
+    }
+  } catch (e) {
+    // Fail silently so module loading never crashes
+  }
+}

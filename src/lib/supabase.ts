@@ -2,13 +2,18 @@ import { createClient, SupabaseClient, Session, User } from '@supabase/supabase-
 import { apiUrl } from './api';
 
 // Get Supabase credentials from Vite environment or runtime fallback
+const rawSupabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL;
 export const SUPABASE_URL =
-  (import.meta as any).env?.VITE_SUPABASE_URL ||
-  'https://jweocgegjooqgjvkktqd.supabase.co';
+  rawSupabaseUrl && rawSupabaseUrl.trim() !== ''
+    ? rawSupabaseUrl.trim()
+    : 'https://jweocgegjooqgjvkktqd.supabase.co';
 
+const rawSupabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY;
 export const SUPABASE_ANON_KEY =
-  (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ||
-  'sb_publishable_T3WsnmqVz2o7SdHCtkkqwg_YGFoZ0jN';
+  rawSupabaseKey && rawSupabaseKey.trim() !== ''
+    ? rawSupabaseKey.trim()
+    : 'sb_publishable_T3WsnmqVz2o7SdHCtkkqwg_YGFoZ0jN';
+
 
 export const SUPABASE_PROJECT_ID = 'jweocgegjooqgjvkktqd';
 export const SUPABASE_CALLBACK_URL = `${SUPABASE_URL}/auth/v1/callback`;

@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { StudySprintPlan } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const StudySprintModal: React.FC = () => {
   const { isSprintOpen, setIsSprintOpen, user, logStudyTime, addXP, showToast } = useApp();
@@ -31,8 +33,9 @@ export const StudySprintModal: React.FC = () => {
   const handleGeneratePlan = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/gemini/study-planner', {
+      const res = await fetch(apiUrl('/api/gemini/study-planner'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           mode: isExamTomorrowMode ? 'exam_tomorrow' : 'sprint',

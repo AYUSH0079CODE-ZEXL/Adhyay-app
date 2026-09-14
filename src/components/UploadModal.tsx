@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { StudyMaterial, MaterialType } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const UploadModal: React.FC = () => {
   const { isUploadOpen, setIsUploadOpen, user, addStudyMaterial, setActiveTab, showToast } = useApp();
@@ -84,8 +86,9 @@ export const UploadModal: React.FC = () => {
         setTimeout(() => setProgressStage(2), 600); // Identifying timestamps
         setTimeout(() => setProgressStage(3), 1200); // Generating notes & MCQs
 
-        const res = await fetch('/api/gemini/process-video', {
+        const res = await fetch(apiUrl('/api/gemini/process-video'), {
           method: 'POST',
+
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             videoUrl: youtubeUrl,
@@ -152,8 +155,9 @@ export const UploadModal: React.FC = () => {
         setTimeout(() => setProgressStage(2), 700); // Detecting formulas & handwriting
         setTimeout(() => setProgressStage(3), 1500); // Creating multi-format explanations
 
-        const res = await fetch('/api/gemini/generate-notes', {
+        const res = await fetch(apiUrl('/api/gemini/generate-notes'), {
           method: 'POST',
+
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             title: title || fileName || 'Study Notes',

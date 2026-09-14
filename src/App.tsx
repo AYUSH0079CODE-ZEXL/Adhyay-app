@@ -20,10 +20,13 @@ import { FriendsGroupsView } from './views/FriendsGroupsView';
 import { LevelUpView } from './views/LevelUpView';
 import { ProfileView } from './views/ProfileView';
 import { LoginView } from './views/LoginView';
+import { PrivacyPolicyView } from './views/PrivacyPolicyView';
+import { TermsView } from './views/TermsView';
 import { AuthLoadingScreen } from './components/AuthLoadingScreen';
+import { getInitialLegalRoute, LegalRoute, navigateToLegalRoute } from './lib/routes';
 
 const MainLayout: React.FC = () => {
-  const { activeTab, toastMessage } = useApp();
+  const { activeTab, setActiveTab, toastMessage } = useApp();
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -48,6 +51,10 @@ const MainLayout: React.FC = () => {
         return <LevelUpView />;
       case 'profile':
         return <ProfileView />;
+      case 'privacy':
+        return <PrivacyPolicyView onBack={() => setActiveTab('home')} />;
+      case 'terms':
+        return <TermsView onBack={() => setActiveTab('home')} />;
       default:
         return <HomeDashboardView />;
     }
@@ -84,18 +91,66 @@ const MainLayout: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const { session, isLoadingSession } = useApp();
+  const [publicLegalRoute, setPublicLegalRoute] = React.useState<LegalRoute>(() => getInitialLegalRoute());
 
-  // 1. If currently checking Supabase session, show branded loading screen
+  React.useEffect(() => {
+    const handleRouteChange = () => {
+      const route = getInitialLegalRoute();
+      setPublicLegalRoute(route);
+    };
+
+    window.addEventListener('hashchange', handleRouteChange);
+    window.addEventListener('popstate', handleRouteChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleRouteChange);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
+
+  // 1. PUBLIC LEGAL ROUTES (Google OAuth requirement: must be accessible without login)
+  if (publicLegalRoute === 'privacy') {
+    return (
+      <PrivacyPolicyView
+        isStandalone
+        onBack={() => {
+          navigateToLegalRoute('app');
+          setPublicLegalRoute(null);
+        }}
+      />
+    );
+  }
+
+  if (publicLegalRoute === 'terms') {
+    return (
+      <TermsView
+        isStandalone
+        onBack={() => {
+          navigateToLegalRoute('app');
+          setPublicLegalRoute(null);
+        }}
+      />
+    );
+  }
+
+  // 2. If currently checking Supabase session, show branded loading screen
   if (isLoadingSession) {
     return <AuthLoadingScreen />;
   }
 
-  // 2. If no valid Supabase session exists, show real ADHYAY Login & Sign-in screen
+  // 3. If no valid Supabase session exists, show real ADHYAY Login & Sign-in screen
   if (!session) {
-    return <LoginView />;
+    return (
+      <LoginView
+        onOpenLegal={(route) => {
+          navigateToLegalRoute(route);
+          setPublicLegalRoute(route);
+        }}
+      />
+    );
   }
 
-  // 3. User is authenticated with a verified Supabase session -> open ADHYAY directly
+  // 4. User is authenticated with a verified Supabase session -> open ADHYAY directly
   return <MainLayout />;
 };
 

@@ -104,8 +104,10 @@ export interface GeneratedNotesFormat {
   }>;
   derivations: Array<{
     title: string;
-    steps: string[];
-    keyTakeaway: string;
+    steps: string | string[];
+    keyTakeaway?: string;
+    marks?: number;
+    conclusion?: string;
   }>;
   examples: Array<{
     problem: string;
@@ -114,9 +116,12 @@ export interface GeneratedNotesFormat {
   }>;
   commonMistakes: Array<{
     mistake: string;
-    whyWrong: string;
-    correctWay: string;
+    whyWrong?: string;
+    correctWay?: string;
+    whyStudentsMakeIt?: string;
+    correctApproach?: string;
   }>;
+
   exceptions: Array<{
     rule: string;
     exception: string;
@@ -172,10 +177,12 @@ export interface Question {
   pyqSource?: string; // e.g., "CBSE 2023 Set 1", "JEE Main 2024 Shift 2", "NEET 2022"
   isPyq?: boolean;
   isHighPriority?: boolean;
+  examinerTrap?: string;
   topic?: string;
   chapter?: string;
   subject?: string;
 }
+
 
 export interface StudyMaterial {
   id: string;
@@ -247,7 +254,7 @@ export interface DoubtAnswer {
 
 export interface DoubtPost {
   id: string;
-  authorId: string;
+  authorId?: string;
   authorName: string;
   authorGrade: string;
   authorAvatar: string;
@@ -255,11 +262,13 @@ export interface DoubtPost {
   chapter: string;
   title: string;
   description: string;
+  academicLevel?: string;
   attachments?: Array<{
     type: 'image' | 'voice' | 'formula' | 'diagram';
     url?: string;
     content?: string;
   }>;
+
   createdAt: string;
   upvotes: number;
   hasUpvoted?: boolean;

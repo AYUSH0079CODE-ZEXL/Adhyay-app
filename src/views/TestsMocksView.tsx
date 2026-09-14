@@ -18,6 +18,8 @@ import {
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { Question, MockTest, QuestionType, Difficulty } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const TestsMocksView: React.FC = () => {
   const { user, pyqBank, completedTests, addCompletedTest, addXP, showToast } = useApp();
@@ -62,8 +64,9 @@ export const TestsMocksView: React.FC = () => {
   const handleGenerateTest = async () => {
     setGenerating(true);
     try {
-      const res = await fetch('/api/gemini/generate-questions', {
+      const res = await fetch(apiUrl('/api/gemini/generate-questions'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           subject: selectedSubject,

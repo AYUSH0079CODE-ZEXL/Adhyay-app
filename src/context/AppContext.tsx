@@ -32,7 +32,9 @@ export type NavigationTab =
   | 'levelup'
   | 'recall'
   | 'scan'
-  | 'profile';
+  | 'profile'
+  | 'privacy'
+  | 'terms';
 
 interface AppContextType {
   // Auth & Session
@@ -81,10 +83,23 @@ interface AppContextType {
   addCompletedTest: (test: MockTest) => void;
   toggleWeakTopic: (topic: string) => void;
   toastMessage: { text: string; type: 'success' | 'info' | 'warning' } | null;
-  showToast: (text: string, type?: 'success' | 'info' | 'warning') => void;
+  showToast: (text: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+
+
+function safeGetStorage<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback;
+  try {
+    const item = localStorage.getItem(key);
+    if (!item) return fallback;
+    return JSON.parse(item) as T;
+  } catch (e) {
+    console.warn(`Failed to parse storage item "${key}":`, e);
+    return fallback;
+  }
+}
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 0. Supabase Auth Session State
@@ -94,8 +109,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 1. User State
   const [user, setUser] = useState<UserProfile>(() => {
-    const saved = localStorage.getItem('abhyas_user');
-    return saved ? JSON.parse(saved) : INITIAL_USER;
+    return safeGetStorage('abhyas_user', INITIAL_USER);
   });
 
   // 2. Navigation State
@@ -103,8 +117,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 3. Materials / Vault State
   const [materials, setMaterials] = useState<StudyMaterial[]>(() => {
-    const saved = localStorage.getItem('abhyas_materials');
-    return saved ? JSON.parse(saved) : INITIAL_STUDY_MATERIALS;
+    return safeGetStorage('abhyas_materials', INITIAL_STUDY_MATERIALS);
   });
   const [activeMaterial, setActiveMaterial] = useState<StudyMaterial | null>(() => {
     return materials[0] || null;
@@ -112,23 +125,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // 4. Daily Missions
   const [dailyMissions, setDailyMissions] = useState<DailyMission[]>(() => {
-    const saved = localStorage.getItem('abhyas_missions');
-    return saved ? JSON.parse(saved) : INITIAL_DAILY_MISSIONS;
+    return safeGetStorage('abhyas_missions', INITIAL_DAILY_MISSIONS);
   });
 
   // 5. Doubts Community
   const [doubts, setDoubts] = useState<DoubtPost[]>(() => {
-    const saved = localStorage.getItem('abhyas_doubts');
-    return saved ? JSON.parse(saved) : INITIAL_DOUBTS;
+    return safeGetStorage('abhyas_doubts', INITIAL_DOUBTS);
   });
 
   // 6. PYQ Bank & Knowledge Map
   const [pyqBank] = useState<Question[]>(INITIAL_PYQ_BANK);
   const [knowledgeNodes, setKnowledgeNodes] = useState<KnowledgeNode[]>(INITIAL_KNOWLEDGE_NODES);
   const [completedTests, setCompletedTests] = useState<MockTest[]>(() => {
-    const saved = localStorage.getItem('abhyas_tests');
-    return saved ? JSON.parse(saved) : [];
+    return safeGetStorage('abhyas_tests', []);
   });
+
 
   // 7. Modals
   const [isTutorOpen, setIsTutorOpen] = useState(false);
@@ -140,12 +151,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // 8. Toast notification
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'warning' } | null>(null);
 
-  const showToast = useCallback((text: string, type: 'success' | 'info' | 'warning' = 'success') => {
-    setToastMessage({ text, type });
+  const showToast = useCallback((text: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
+    const mappedType = type === 'error' ? 'warning' : type;
+    setToastMessage({ text, type: mappedType });
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
   }, []);
+
 
   // Sync profile with Supabase authenticated user
   const syncUserProfile = useCallback(async (currentAuthUser: User) => {
@@ -210,6 +223,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     let mounted = true;
 
+    // Safety fallback: Never leave the user stuck on the loading screen for more than 1 second
+    const safetyTimer = setTimeout(() => {
+      if (mounted) {
+        setIsLoadingSession(false);
+      }
+    }, 1000);
+
     async function initAuth() {
       try {
         cleanAuthUrlParams();
@@ -221,12 +241,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           if (data?.session) {
             setSession(data.session);
             setAuthUser(data.session.user);
-            await syncUserProfile(data.session.user);
+            setIsLoadingSession(false);
+            syncUserProfile(data.session.user).catch((e) => console.warn('Background profile sync error:', e));
           } else {
             setSession(null);
             setAuthUser(null);
+            setIsLoadingSession(false);
           }
-          setIsLoadingSession(false);
         }
       } catch (err) {
         console.error('Exception checking Supabase auth:', err);
@@ -251,7 +272,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           cleanAuthUrlParams();
           setSession(currentSession);
           setAuthUser(currentSession.user);
-          await syncUserProfile(currentSession.user);
+          setIsLoadingSession(false);
+          syncUserProfile(currentSession.user).catch((e) => console.warn('Background profile sync error:', e));
         }
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
@@ -263,9 +285,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
     return () => {
       mounted = false;
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, [syncUserProfile]);
+
 
   // Real Supabase Logout
   const logout = async () => {
@@ -490,6 +514,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider
       value={{
+        session,
+        authUser,
+        isLoadingSession,
+        logout,
         user,
         activeTab,
         setActiveTab,
@@ -532,6 +560,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       {children}
     </AppContext.Provider>
   );
+
 };
 
 export const useApp = () => {

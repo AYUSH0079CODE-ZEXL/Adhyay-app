@@ -161,6 +161,22 @@ export const Sidebar: React.FC = () => {
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
           </button>
+
+          <div className="flex items-center justify-center gap-3 pt-1 text-[10px] text-gray-500">
+            <button
+              onClick={() => setActiveTab('privacy')}
+              className="hover:text-orange-400 transition-colors"
+            >
+              Privacy
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => setActiveTab('terms')}
+              className="hover:text-orange-400 transition-colors"
+            >
+              Terms
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -311,6 +327,28 @@ export const Sidebar: React.FC = () => {
                 <LogOut className="w-4 h-4 text-red-400" />
                 <span>Log Out of ADHYAY</span>
               </button>
+
+              <div className="flex items-center justify-center gap-4 pt-2 text-[11px] text-gray-500">
+                <button
+                  onClick={() => {
+                    setActiveTab('privacy');
+                    setIsMobileMoreOpen(false);
+                  }}
+                  className="hover:text-orange-400 transition-colors"
+                >
+                  Privacy Policy
+                </button>
+                <span>•</span>
+                <button
+                  onClick={() => {
+                    setActiveTab('terms');
+                    setIsMobileMoreOpen(false);
+                  }}
+                  className="hover:text-orange-400 transition-colors"
+                >
+                  Terms of Service
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { apiUrl } from '../lib/api';
 
 export const FriendsGroupsView: React.FC = () => {
   const { user: userProfile, showToast, addXP } = useApp();
@@ -43,7 +44,7 @@ export const FriendsGroupsView: React.FC = () => {
   // Fetch friends and groups from backend
   const refreshFriends = async () => {
     try {
-      const res = await fetch(`/api/friends/list?userId=${userProfile.id || 'user_default'}`);
+      const res = await fetch(apiUrl(`/api/friends/list?userId=${userProfile.id || 'user_default'}`));
       const data = await res.json();
       if (data.success) {
         setFriendsList(data.friends || []);
@@ -56,7 +57,7 @@ export const FriendsGroupsView: React.FC = () => {
 
   const refreshGroups = async () => {
     try {
-      const res = await fetch(`/api/groups/list?userId=${userProfile.id || 'user_default'}`);
+      const res = await fetch(apiUrl(`/api/groups/list?userId=${userProfile.id || 'user_default'}`));
       const data = await res.json();
       if (data.success) {
         setGroups(data.groups || []);
@@ -68,6 +69,7 @@ export const FriendsGroupsView: React.FC = () => {
       console.error('Error fetching groups:', e);
     }
   };
+
 
   useEffect(() => {
     refreshFriends();
@@ -88,7 +90,7 @@ export const FriendsGroupsView: React.FC = () => {
     if (!friendCodeInput.trim()) return;
     setIsSendingRequest(true);
     try {
-      const res = await fetch('/api/friends/request', {
+      const res = await fetch(apiUrl('/api/friends/request'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,7 +115,7 @@ export const FriendsGroupsView: React.FC = () => {
   // Accept or decline request
   const handleRespondRequest = async (requestId: string, action: 'accept' | 'decline') => {
     try {
-      const res = await fetch('/api/friends/respond', {
+      const res = await fetch(apiUrl('/api/friends/respond'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId, action }),
@@ -132,7 +134,7 @@ export const FriendsGroupsView: React.FC = () => {
   // Remove friend
   const handleRemoveFriend = async (friendId: string) => {
     try {
-      await fetch('/api/friends/remove', {
+      await fetch(apiUrl('/api/friends/remove'), {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: userProfile.id || 'user_default', friendId }),
@@ -151,7 +153,7 @@ export const FriendsGroupsView: React.FC = () => {
     setGroupMessageInput('');
 
     try {
-      const res = await fetch(`/api/groups/${selectedGroup.id}/messages`, {
+      const res = await fetch(apiUrl(`/api/groups/${selectedGroup.id}/messages`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -179,7 +181,7 @@ export const FriendsGroupsView: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch('/api/groups/create', {
+      const res = await fetch(apiUrl('/api/groups/create'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -189,6 +191,7 @@ export const FriendsGroupsView: React.FC = () => {
           userId: userProfile.id || 'user_default',
         }),
       });
+
       const data = await res.json();
       if (data.success && data.group) {
         showToast(`Created "${data.group.name}"!`, 'success');

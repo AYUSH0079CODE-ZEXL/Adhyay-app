@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { StudyMaterial } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const LearnFromVideoView: React.FC = () => {
   const { addStudyMaterial, showToast, addXP, setActiveTab } = useApp();
@@ -105,7 +107,7 @@ export const LearnFromVideoView: React.FC = () => {
 
     try {
       // Initiate request to backend
-      const res = await fetch('/api/video/analyze', {
+      const res = await fetch(apiUrl('/api/video/analyze'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: targetUrl }),
@@ -123,8 +125,9 @@ export const LearnFromVideoView: React.FC = () => {
       const pollInterval = setInterval(async () => {
         pollCount++;
         try {
-          const statusRes = await fetch(`/api/video/status/${analysisId}`);
+          const statusRes = await fetch(apiUrl(`/api/video/status/${analysisId}`));
           const statusData = await statusRes.json();
+
 
           if (statusData.success && statusData.analysis) {
             const status = statusData.analysis.status;
@@ -187,8 +190,9 @@ export const LearnFromVideoView: React.FC = () => {
     setIsChatLoading(true);
 
     try {
-      const res = await fetch('/api/video/chat', {
+      const res = await fetch(apiUrl('/api/video/chat'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           query: userMsg,

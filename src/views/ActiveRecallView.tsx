@@ -16,6 +16,8 @@ import {
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { Flashcard, ActiveRecallEvaluation } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const ActiveRecallView: React.FC = () => {
   const { materials, user, addXP, showToast } = useApp();
@@ -59,8 +61,9 @@ export const ActiveRecallView: React.FC = () => {
     setEvaluation(null);
 
     try {
-      const res = await fetch('/api/gemini/evaluate-recall', {
+      const res = await fetch(apiUrl('/api/gemini/evaluate-recall'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           concept: feynmanConcept,

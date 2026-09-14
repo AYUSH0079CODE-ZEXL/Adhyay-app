@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { SolvedQuestionResponse } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const ScanSolveView: React.FC = () => {
   const { user, addXP, showToast } = useApp();
@@ -48,8 +50,9 @@ export const ScanSolveView: React.FC = () => {
     setSolution(null);
 
     try {
-      const res = await fetch('/api/gemini/scan-solve', {
+      const res = await fetch(apiUrl('/api/gemini/scan-solve'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           questionText,

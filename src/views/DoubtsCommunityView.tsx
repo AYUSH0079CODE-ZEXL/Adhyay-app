@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { DoubtPost } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const DoubtsCommunityView: React.FC = () => {
   const {
@@ -91,8 +93,9 @@ export const DoubtsCommunityView: React.FC = () => {
     setGeneratingAIAnswer(true);
 
     try {
-      const res = await fetch('/api/gemini/tutor-chat', {
+      const res = await fetch(apiUrl('/api/gemini/tutor-chat'), {
         method: 'POST',
+
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: `Please provide a clear, step-by-step academic answer to this student's doubt: "${activeDoubt.title}". Details: ${activeDoubt.description}`,

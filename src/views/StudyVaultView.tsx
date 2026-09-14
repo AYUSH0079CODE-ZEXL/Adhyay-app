@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { StudyMaterial, ExplanationMode } from '../types';
+import { apiUrl } from '../lib/api';
+
 
 export const StudyVaultView: React.FC = () => {
   const {
@@ -76,7 +78,7 @@ export const StudyVaultView: React.FC = () => {
     setExplanationResult(null);
 
     try {
-      const res = await fetch('/api/gemini/explain-concept', {
+      const res = await fetch(apiUrl('/api/gemini/explain-concept'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,7 +107,7 @@ export const StudyVaultView: React.FC = () => {
     setMaterialAnswer(null);
 
     try {
-      const res = await fetch('/api/gemini/ask-material', {
+      const res = await fetch(apiUrl('/api/gemini/ask-material'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -113,6 +115,7 @@ export const StudyVaultView: React.FC = () => {
           material: current,
         }),
       });
+
       const data = await res.json();
       setMaterialAnswer(data);
       addXP(15, 'Queried study material knowledge');

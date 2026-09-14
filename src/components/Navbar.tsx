@@ -245,6 +245,28 @@ export const Navbar: React.FC = () => {
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out (Supabase)</span>
                   </button>
+
+                  <div className="flex items-center justify-between px-2.5 py-1 text-[10px] text-gray-500 border-t border-[#1a202c] pt-2">
+                    <button
+                      onClick={() => {
+                        setActiveTab('privacy');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="hover:text-orange-400 transition-colors"
+                    >
+                      Privacy Policy
+                    </button>
+                    <span>•</span>
+                    <button
+                      onClick={() => {
+                        setActiveTab('terms');
+                        setIsProfileMenuOpen(false);
+                      }}
+                      className="hover:text-orange-400 transition-colors"
+                    >
+                      Terms of Service
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

@@ -28,9 +28,10 @@ import {
 
 interface LoginViewProps {
   onSuccess?: () => void;
+  onOpenLegal?: (route: 'privacy' | 'terms') => void;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
+export const LoginView: React.FC<LoginViewProps> = ({ onSuccess, onOpenLegal }) => {
   // Collapsed email state by default: 'none' (prioritizing Google), or 'signin' / 'signup'
   const [emailFormMode, setEmailFormMode] = useState<'collapsed' | 'signin' | 'signup'>('collapsed');
   const [email, setEmail] = useState('');
@@ -486,9 +487,42 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSuccess }) => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full max-w-6xl mx-auto px-4 py-3 sm:py-4 text-center text-[10px] sm:text-[11px] text-gray-400 relative z-10">
-        ADHYAY — Intelligent Study Platform for Indian Students & Aspirants
+      {/* Footer & Legal Links */}
+      <footer className="w-full max-w-6xl mx-auto px-4 py-4 text-center text-[11px] text-gray-400 relative z-10 space-y-2">
+        <div className="flex items-center justify-center gap-4 text-gray-400">
+          <a
+            href="#/privacy-policy"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onOpenLegal) {
+                onOpenLegal('privacy');
+              } else {
+                window.location.hash = '/privacy-policy';
+              }
+            }}
+            className="hover:text-orange-400 transition-colors underline-offset-4 hover:underline"
+          >
+            Privacy Policy
+          </a>
+          <span className="text-gray-600">•</span>
+          <a
+            href="#/terms"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onOpenLegal) {
+                onOpenLegal('terms');
+              } else {
+                window.location.hash = '/terms';
+              }
+            }}
+            className="hover:text-orange-400 transition-colors underline-offset-4 hover:underline"
+          >
+            Terms of Service
+          </a>
+        </div>
+        <p className="text-[10px] text-gray-400">
+          ADHYAY — Intelligent AI Study Platform for Students &amp; Aspirants
+        </p>
       </footer>
     </div>
   );
