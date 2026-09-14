@@ -1,0 +1,17 @@
+{
+  "short_name": "ADHYAY",
+  "name": "ADHYAY — AI Study & Exam Companion",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b0d11",
+  "theme_color": "#f97316",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/"
+}

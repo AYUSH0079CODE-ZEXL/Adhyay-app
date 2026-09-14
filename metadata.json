@@ -1,0 +1,7 @@
+{
+  "name": "ADHYAY — AI Study & Exam Companion",
+  "description": "Production AI-powered study companion, automated video lecture understanding, notes generator, test engine & doubts platform.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
