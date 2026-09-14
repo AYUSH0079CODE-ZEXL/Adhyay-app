@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import confetti from 'canvas-confetti';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase, signOut, cleanAuthUrlParams } from '../lib/supabase';
+import { apiUrl } from '../lib/api';
 import {
   UserProfile,
   StudyMaterial,
@@ -160,9 +161,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       // Call backend to fetch or create profile for this Supabase user
       const res = await fetch(
-        `/api/user/profile?userId=${encodeURIComponent(currentAuthUser.id)}&email=${encodeURIComponent(
+        apiUrl(`/api/user/profile?userId=${encodeURIComponent(currentAuthUser.id)}&email=${encodeURIComponent(
           email
-        )}&name=${encodeURIComponent(name)}&avatarUrl=${encodeURIComponent(avatarUrl)}`
+        )}&name=${encodeURIComponent(name)}&avatarUrl=${encodeURIComponent(avatarUrl)}`)
       );
       if (res.ok) {
         const data = await res.json();
@@ -307,7 +308,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUser((prev) => {
       const updated = { ...prev, ...updates };
       // Sync to backend asynchronously
-      fetch('/api/user/profile', {
+      fetch(apiUrl('/api/user/profile'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: prev.id, updates }),

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADHYAY — AI Study & Exam Companion</title>
+    <meta name="description" content="Production AI-powered study companion, automated video lecture understanding, notes generator, test engine & doubts platform." />
+    <meta property="og:title" content="ADHYAY — AI Study & Exam Companion" />
+    <meta property="og:description" content="Production AI-powered study companion, automated video lecture understanding, notes generator, test engine & doubts platform." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f97316" />
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <script>
+      // Single Page App redirect for GitHub Pages
+      // Keeps path, query, and hash tokens intact for Supabase Auth and React
+      sessionStorage.redirect = location.href;
+      var pathSegments = location.pathname.split('/');
+      // If deployed in a subfolder on GitHub Pages, redirect to root index
+      var repoSegment = pathSegments.length > 2 ? '/' + pathSegments[1] : '';
+      window.location.replace(repoSegment + '/');
+    </script>
+  </head>
+  <body class="bg-[#0b0d11] text-[#f1f3f7]">
+    <div id="root"></div>
+  </body>
+</html>

@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient, Session, User } from '@supabase/supabase-js';
+import { apiUrl } from './api';
 
 // Get Supabase credentials from Vite environment or runtime fallback
 export const SUPABASE_URL =
@@ -131,7 +132,7 @@ export function cleanAuthUrlParams(): { error: string | null; errorDescription: 
  */
 export async function checkGoogleProviderStatus(): Promise<{ enabled: boolean; callbackUrl: string; projectId: string }> {
   try {
-    const res = await fetch('/api/auth/google-status');
+    const res = await fetch(apiUrl('/api/auth/google-status'));
     if (res.ok) {
       const data = await res.json();
       return {
@@ -253,7 +254,7 @@ export async function signUpWithEmail(email: string, password: string, fullName:
 
   try {
     // Call server registration endpoint
-    const regRes = await fetch('/api/auth/register', {
+    const regRes = await fetch(apiUrl('/api/auth/register'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: cleanEmail, password, fullName }),
