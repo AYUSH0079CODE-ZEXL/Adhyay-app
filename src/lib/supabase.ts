@@ -174,6 +174,7 @@ export async function signInWithGoogle(): Promise<{
   providerEnabled?: boolean;
   callbackUrl?: string;
   projectId?: string;
+  url?: string;
 }> {
   try {
     const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -206,18 +207,27 @@ export async function signInWithGoogle(): Promise<{
     }
 
     if (data?.url) {
+      let redirected = false;
       try {
+        // Attempt top-level browser navigation
         if (window.top && window.top !== window) {
           window.top.location.href = data.url;
-        } else {
-          window.location.href = data.url;
+          redirected = true;
         }
-      } catch {
-        window.location.href = data.url;
+      } catch (e) {
+        console.warn('Top navigation restricted by frame:', e);
+      }
+
+      if (!redirected) {
+        try {
+          window.location.href = data.url;
+        } catch {
+          window.open(data.url, '_self');
+        }
       }
     }
 
-    return { error: null, providerEnabled: true };
+    return { error: null, providerEnabled: true, url: data?.url };
   } catch (err: any) {
     return { error: err };
   }
